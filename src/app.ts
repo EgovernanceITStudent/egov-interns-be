@@ -1,4 +1,4 @@
-import express,{Application, Express,Request,Response} from 'express';
+import express,{Application,Request,Response} from 'express';
 import { Controller } from './interfaces/controllerInterface';
 
 export class App {

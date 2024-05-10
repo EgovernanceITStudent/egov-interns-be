@@ -1,15 +1,8 @@
 import dotenv from 'dotenv'
 import { App } from './app'
-import  {Pool} from 'pg'
-import {Sequelize} from 'sequelize'
+import { Authcontroller } from './resources/auth/controller'
+
 dotenv.config()
 
-const connectionString = 'postgres://postgres.skjxbwzncomrweitcmfh:pHW9qZsUDZxf4xOU@aws-0-us-west-1.pooler.supabase.com:5432/postgres';
-//connecting to database
-const sequelize = new Sequelize(connectionString)
-
-module.exports = {
-    // querying:pool.query()
-}
-const app = new App([],3000);
+const app = new App([new Authcontroller()],process.env.PORT as unknown as number);
 app.listen()
