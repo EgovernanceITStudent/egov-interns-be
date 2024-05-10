@@ -13,6 +13,7 @@ constructor(){
 }
 initRoute(){
     this.router.post('/signup',this.signup)
+    this.router.post('/login',this.login)
 }
     public async signup (req:Request,res:Response){
         let data:UserInterface = req.body;
@@ -31,5 +32,16 @@ initRoute(){
                 message:'success'
             }
         )
+    }
+
+    public async login (req:Request,res:Response){
+            let data = req.body;
+            let find = await user.findOne({where:{username:data.username}})
+            if(find === null){
+                res.status(400).json({
+                    message:"User name does not exist"
+                })
+            }
+            
     }
 }
