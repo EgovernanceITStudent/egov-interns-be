@@ -24,10 +24,9 @@ initRoute(){
         await bcrypt.hash(data.password,10).then(function(hash){
             data.password = hash
         })
-        // const datum = await user.create(data);
+        await user.create({...data});
         res.status(200).json(
             {
-                data:"datam",
                 message:'success'
             }
         )
