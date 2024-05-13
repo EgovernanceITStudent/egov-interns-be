@@ -33,15 +33,4 @@ initRoute(){
             }
         )
     }
-
-    public async login (req:Request,res:Response){
-            let data = req.body;
-            let find = await user.findOne({where:{username:data.username}})
-            if(find === null){
-                res.status(400).json({
-                    message:"User name does not exist"
-                })
-            }
-            
-    }
 }
