@@ -25,12 +25,31 @@ initRoute(){
         await bcrypt.hash(data.password,10).then(function(hash){
             data.password = hash
         })
-        // const datum = await user.create(data);
+        await user.create({...data});
         res.status(200).json(
             {
-                data:"datam",
                 message:'success'
             }
         )
+    }
+
+    public async login (req:Request,res:Response){
+        let data = req.body;
+        const User = await user.findOne({
+            where:{username:data.username},
+        attributes:['password']}
+        )
+        if(User === null){
+            res.status(400).json({
+                message:"User name does not exist"
+            })
+        }
+        let userpassword = User?.getDataValue('password')
+        await bcrypt.compare(data.password,userpassword)
+        if(bcrypt){
+            res.status(200).json({
+                message:"success"
+            })
+        }
     }
 }
