@@ -2,6 +2,10 @@ import { Request,Response, Router } from "express";
 import { user } from "../user/model";
 import { UserInterface } from "src/interfaces/userInterface";
 import bcrypt from 'bcrypt'
+import jwt from 'jsonwebtoken'
+import dotenv from 'dotenv'
+
+dotenv.config()
 
 export class Authcontroller {
 router:Router;
@@ -26,6 +30,7 @@ initRoute(){
             data.password = hash
         })
         await user.create({...data});
+        jwt.sign(data,process.env.SECRETKEY as string,{expiresIn:'24'})
         res.status(200).json(
             {
                 message:'success'
@@ -47,9 +52,13 @@ initRoute(){
         let userpassword = User?.getDataValue('password')
         await bcrypt.compare(data.password,userpassword)
         if(bcrypt){
+            jwt.sign(data,process.env.SECRETKEY as string,{expiresIn:'24'})
             res.status(200).json({
                 message:"success"
             })
         }
+        res.status(401).json({
+            message:"incorrect password or username"
+        })
     }
 }
