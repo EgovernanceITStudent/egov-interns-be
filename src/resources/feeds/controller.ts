@@ -6,7 +6,7 @@ export class Feedscontroller{
     router:Router;
     constructor(){
         this.router = Router()
-        this.path = '/'
+        this.path = '';
         this.initRoute()
     }
     initRoute(){
