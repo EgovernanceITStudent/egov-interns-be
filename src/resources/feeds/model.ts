@@ -2,7 +2,7 @@ import { db } from "../../db/index";
 import { DataTypes,fn } from "sequelize";
 
 export const feed = db.define(
-    "Feed",{
+    "feed",{
         uid: {
             type: DataTypes.UUID, 
             defaultValue:fn("uuid_generate_v4"),
