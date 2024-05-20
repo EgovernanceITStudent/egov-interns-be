@@ -20,10 +20,8 @@ export class App {
 
     private initializeRoute(){
 
-        this.express.get('/',(_req:Request,res:Response)=>{
-=======
-        this.express.get('/',(_req:Request,res:Response)=>{
 
+        this.express.get('/',(_req:Request,res:Response)=>{
             res.json({
                 message:"welcome to the e-gov intern API"
             })
