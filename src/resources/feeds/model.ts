@@ -27,4 +27,4 @@ export const feed = db.define(
         }
     }
 )
-feed.sync({force:true});
+// feed.sync({force:true});

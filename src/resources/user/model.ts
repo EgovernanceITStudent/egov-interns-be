@@ -2,7 +2,6 @@ import {DataTypes,fn } from "sequelize";
 import { db } from "../../db/index";
 
 
-
 export const user = db.define(
     'User',
     {

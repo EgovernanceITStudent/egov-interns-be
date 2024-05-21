@@ -1,5 +1,5 @@
 export interface UserInterface {
-    id:any,
+    uid:any,
     firstName:string,
     lastName:string,
     email:string,

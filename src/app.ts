@@ -1,10 +1,12 @@
 import express,{Application,Request,Response} from 'express';
 import { Controller } from './interfaces/controllerInterface';
+import cookieParser from 'cookie-parser';
 
 export class App {
     private express:Application;
     controllers:Controller[];
     port:number;
+    
 
     constructor(controllers:Controller[],port:number){
         this.express = express();
@@ -16,6 +18,7 @@ export class App {
     
     private initiatializeMiddlewares(){
         this.express.use(express.json());
+        this.express.use(cookieParser());
     }
 
     private initializeRoute(){
