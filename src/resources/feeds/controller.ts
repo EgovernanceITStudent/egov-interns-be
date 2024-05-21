@@ -1,6 +1,7 @@
 import { Request,Response,Router } from "express";
 import { feed } from "./model";
 import { Feed } from "src/interfaces/feedinterface";
+import { Middleware } from "../../utils/middleware";
 export class Feedscontroller{
     path:string
     router:Router;
@@ -10,7 +11,7 @@ export class Feedscontroller{
         this.initRoute()
     }
     initRoute(){
-        this.router.route('/feeds').get(this.gettingfeeds)
+        this.router.route('/feeds').get(new Middleware().authchecker,this.gettingfeeds)
         this.router.route('/feeds/:id').post(this.postingfeed).patch(this.patchfeed).delete(this.deletefeed)
     }
 
@@ -25,7 +26,7 @@ export class Feedscontroller{
     public async postingfeed(req:Request,res:Response) {
         req.body.userid = req.params.id; 
         const data:Feed = req.body;
-        await feed.create({...data})
+        await feed.create({...data});
         res.status(200).json({
             message:"success"
         })

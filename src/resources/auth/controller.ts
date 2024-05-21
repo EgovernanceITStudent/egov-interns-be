@@ -5,6 +5,7 @@ import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import dotenv from 'dotenv'
 
+
 dotenv.config()
 
 export class Authcontroller {
@@ -29,11 +30,18 @@ initRoute(){
         await bcrypt.hash(data.password,10).then(function(hash){
             data.password = hash
         })
-        await user.create({...data});
-        jwt.sign(data,process.env.SECRETKEY as string,{expiresIn:'24'})
+        let dt:any = await user.create({...data});
+        const payload = {
+            uid:dt.uid,
+        }
+        console.log(payload)
+        
+        const token = jwt.sign(payload,process.env.SECRETKEY as string,{expiresIn:'24000'})
+        res.cookie('token',token);
         res.status(200).json(
             {
-                message:'success'
+                message:'success',
+                data:data
             }
         )
     }
@@ -42,23 +50,27 @@ initRoute(){
         let data = req.body;
         const User = await user.findOne({
             where:{username:data.username},
-        attributes:['password']}
+        attributes:['password','uid','first_name','last_name','email','username','profile_image','github_link','linkdin_link']}
         )
         if(User === null){
             res.status(400).json({
                 message:"User name does not exist"
             })
         }
-        let userpassword = User?.getDataValue('password')
+        let userpassword = User?.getDataValue('password');
+        const uid = User?.getDataValue('uid');
+        console.log(User);
         await bcrypt.compare(data.password,userpassword)
+        const payload = {
+            uid:uid
+        }
         if(bcrypt){
-            jwt.sign(data,process.env.SECRETKEY as string,{expiresIn:'24'})
+            const token = jwt.sign(payload,process.env.SECRETKEY as string,{expiresIn:'24'})
+            res.cookie('token',token);
             res.status(200).json({
-                message:"success"
+                message:"success",
+                data:User
             })
         }
-        res.status(401).json({
-            message:"incorrect password or username"
-        })
     }
 }
