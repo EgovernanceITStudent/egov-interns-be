@@ -2,6 +2,8 @@ import { Request,Response,Router } from "express";
 import { feed } from "./model";
 import { Feed } from "src/interfaces/feedinterface";
 import { Middleware } from "../../utils/middleware";
+
+
 export class Feedscontroller{
     path:string
     router:Router;
@@ -16,7 +18,7 @@ export class Feedscontroller{
     }
 
     public async gettingfeeds(req:Request,res:Response){
-        const data = await feed.findAll()
+        const data = await feed.findAll() 
         res.status(200).json({
             message:data,
             data:req.customData
