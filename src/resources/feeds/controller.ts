@@ -19,14 +19,16 @@ export class Feedscontroller{
 
     public async gettingfeeds(req:Request,res:Response){
         const data = await feed.findAll() 
+        console.log(req.customData)
         res.status(200).json({
             message:data,
-            data:req.customData
+            payload:req.customData
         })
     }
 
     public async postingfeed(req:Request,res:Response) {
         const dt = req.customData
+        console.log("i am posting feeds")
         req.body.userid = dt.uid;
         const data:Feed = req.body;
         await feed.create({...data});
