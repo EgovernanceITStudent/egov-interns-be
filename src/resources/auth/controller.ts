@@ -37,14 +37,13 @@ initRoute(){
         console.log(payload)
         
         const token = jwt.sign(payload,process.env.SECRETKEY as string,{expiresIn:'24000'})
-        res.cookie('token',token);
         res.status(200).json(
             {
                 message:'success',
                 data:data,
                 token:token
             }
-        )
+        ).cookie('token',token);
     }
 
     public async login (req:Request,res:Response){
@@ -67,12 +66,11 @@ initRoute(){
         }
         if(bcrypt){
             const token = jwt.sign(payload,process.env.SECRETKEY as string,{expiresIn:'24'})
-            res.cookie('token',token);
             res.status(200).json({
                 message:"success",
                 data:User,
                 token:token
-            })
+            }).cookie('token',token);
         }
     }
 }
