@@ -5,16 +5,15 @@ import dotenv from 'dotenv'
 dotenv.config()
 export class Middleware{
     constructor(){}
-    public authchecker(req:Request,res:Response,next:NextFunction){
-        let data = req.cookies.token
-        console.log("cookie" + data)
+    public async authchecker(req:Request,res:Response,next:NextFunction){
+        let data = await req.cookies.token
         if(data){
-            jwt.verify(data,process.env.SECRETKEY as string,(err:any,user:any)=>{
+            jwt.verify(data,process.env.SECRETKEY as string,(err:any,__user:any)=>{
                 if(err){
                     res.status(403)
                 }
-                console.log("user data" + user)
-                req.customData = user;
+                const dt = jwt.decode(data)
+                req.customData = dt;
                 next()
             })
         }else{
@@ -22,5 +21,8 @@ export class Middleware{
                 message:"you are not logged in"
             })
         }
+    }
+    public uploadimg(){
+
     }
 }

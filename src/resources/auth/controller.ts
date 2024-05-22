@@ -41,7 +41,8 @@ initRoute(){
         res.status(200).json(
             {
                 message:'success',
-                data:data
+                data:data,
+                token:token
             }
         )
     }
@@ -69,7 +70,8 @@ initRoute(){
             res.cookie('token',token);
             res.status(200).json({
                 message:"success",
-                data:User
+                data:User,
+                token:token
             })
         }
     }
