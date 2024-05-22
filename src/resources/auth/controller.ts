@@ -34,14 +34,14 @@ initRoute(){
         const payload = {
             uid:dt.uid,
         }
-        console.log(payload)
-        
         const token = jwt.sign(payload,process.env.SECRETKEY as string,{expiresIn:'24000'})
         res.cookie('token',token).status(200).json(
             {
-                message:'success',
-                data:data,
-                token:token
+                message:{
+                    message:'success',
+                    data:data,
+                    token:token
+                }
             }
         );
     }
@@ -59,7 +59,6 @@ initRoute(){
         }
         let userpassword = User?.getDataValue('password');
         const uid = User?.getDataValue('uid');
-        console.log(User);
         await bcrypt.compare(data.password,userpassword)
         const payload = {
             uid:uid
@@ -67,9 +66,11 @@ initRoute(){
         if(bcrypt){
             const token = jwt.sign(payload,process.env.SECRETKEY as string,{expiresIn:'24'})
             res.cookie('token',token).status(200).json({
-                message:"success",
-                data:User,
-                token:token
+                message:{
+                    message:'success',
+                    data:User,
+                    token:token
+                }
             });
         }
     }
