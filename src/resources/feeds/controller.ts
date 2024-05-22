@@ -6,25 +6,26 @@ export class Feedscontroller{
     path:string
     router:Router;
     constructor(){
-        this.router = Router()
-        this.path = '';
-        this.initRoute()
+        this.router = Router() ;
+        this.path = '' ;
+        this.initRoute() ;
     }
     initRoute(){
-        this.router.route('/feeds').get(new Middleware().authchecker,this.gettingfeeds)
-        this.router.route('/feeds/:id').post(this.postingfeed).patch(this.patchfeed).delete(this.deletefeed)
+        this.router.route('/feeds').get(new Middleware().authchecker,this.gettingfeeds).post(new Middleware().authchecker,this.postingfeed)
+        this.router.route('/feeds/:id').patch(this.patchfeed).delete(this.deletefeed)
     }
 
-    public async gettingfeeds(__req:Request,res:Response){
+    public async gettingfeeds(req:Request,res:Response){
         const data = await feed.findAll()
-
         res.status(200).json({
-            message:data
+            message:data,
+            data:req.customData
         })
     }
 
     public async postingfeed(req:Request,res:Response) {
-        req.body.userid = req.params.id; 
+        const dt = req.customData
+        req.body.userid = dt.uid;
         const data:Feed = req.body;
         await feed.create({...data});
         res.status(200).json({
