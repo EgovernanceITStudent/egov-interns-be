@@ -21,8 +21,10 @@ export class Feedscontroller{
         const data = await feed.findAll() 
         console.log(req.customData)
         res.status(200).json({
-            message:data,
-            payload:req.customData
+            message:{
+                message:data,
+                payload:req.customData
+            }
         })
     }
 
