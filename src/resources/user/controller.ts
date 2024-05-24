@@ -66,8 +66,6 @@ export class User {
         const datapath = "hello";
         await new Middleware().uploadimg(datapath,data?.buffer)
         const url = process.env.PROJECTURL as string + "/storage/v1/object/public/" + process.env.BUCKETNAME as string + "/" + datapath
-
-        console.log(url)
         const usr:any | null = await user.findByPk(req.customData.uid)
         usr.profile_image = url
         usr?.save()
