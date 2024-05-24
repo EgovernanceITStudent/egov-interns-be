@@ -1,6 +1,7 @@
 import { Request,Response, Router } from "express";
 import { user } from "./model";
-
+import multer from "multer";
+import { Middleware } from "../../utils/middleware";
 
 export class User {
     path:string
@@ -8,17 +9,22 @@ export class User {
     constructor(){
         this.path = ''
         this.router = Router()
+        this.initializeRoute()
     }
     initializeRoute(){
-        this.router.route('/profile/:id').get(this.profile)
-        this.router.route('user/:id').patch(this.updateuser).delete(this.deleteuser)
-   
+        const storage = multer.memoryStorage()
+        const upload = multer({storage})
+
+        this.router.route('/profile').get(new Middleware().authchecker,this.profile)
+        this.router.route('/user/:id').patch(this.updateuser).delete(this.deleteuser)
+        this.router.route('/uploadimage').patch(new Middleware().authchecker,upload.single('image'),this.uploadimage)
     }
 
     public async profile(req:Request,res:Response) {
+        const data = req.customData;
         let users = await user.findAll({
             where:{
-                uid:req.params.id
+                uid:data.uid
             },
             attributes:['first_name','last_name','username','email','linkdin_link','github_link']
         })
@@ -53,6 +59,21 @@ export class User {
         res.status(200).json({
             message:"success"
         })
+    }
+    
+    public async uploadimage(req:Request,res:Response){
+        const data = req.file
+        const datapath = "hello";
+        await new Middleware().uploadimg(datapath,data?.buffer)
+        const url = process.env.PROJECTURL as string + "/storage/v1/object/public/" + process.env.BUCKETNAME as string + "/" + datapath
 
+        console.log(url)
+        const usr:any | null = await user.findByPk(req.customData.uid)
+        usr.profile_image = url
+        usr?.save()
+        res.status(200).json({
+            data:data,
+            message:"success"
+        })
     }
 } 

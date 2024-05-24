@@ -1,6 +1,7 @@
 import express,{Application,Request,Response} from 'express';
 import { Controller } from './interfaces/controllerInterface';
 import cookieParser from 'cookie-parser';
+import cors from 'cors'
 
 export class App {
     private express:Application;
@@ -17,13 +18,12 @@ export class App {
     }
     
     private initiatializeMiddlewares(){
+        this.express.use(cors())
         this.express.use(express.json());
         this.express.use(cookieParser());
     }
 
     private initializeRoute(){
-
-
         this.express.get('/',(_req:Request,res:Response)=>{
             res.json({
                 message:"welcome to the e-gov intern API"
