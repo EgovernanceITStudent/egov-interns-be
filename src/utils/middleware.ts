@@ -1,6 +1,7 @@
 import { Request,Response,NextFunction } from "express";
 import  jwt  from "jsonwebtoken";
 import dotenv from 'dotenv'
+import { createClient } from '@supabase/supabase-js'
 
 dotenv.config()
 export class Middleware{
@@ -12,7 +13,7 @@ export class Middleware{
                 if(err){
                     res.status(403)
                 }
-                const dt = jwt.decode(data)
+                const dt:any = jwt.decode(data)
                 req.customData = dt;
                 next()
             })
@@ -22,7 +23,17 @@ export class Middleware{
             })
         }
     }
-    public uploadimg(){
-
+    public async uploadimg(file_path:string,file:any){
+        const supabase = createClient(process.env.PROJECTURL as string, process.env.PROJECTAPIKEY as string)
+        const { data, error } = await supabase.storage.from(process.env.BUCKETNAME as string).upload(file_path,file,{
+            contentType:'image/jpeg'
+        })
+        if (error) {
+            // Handle error
+            return error
+          
+        } else {
+            return data
+        }
     }
 }

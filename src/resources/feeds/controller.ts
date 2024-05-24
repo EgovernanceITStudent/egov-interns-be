@@ -14,15 +14,24 @@ export class Feedscontroller{
     }
     initRoute(){
         this.router.route('/feeds').get(new Middleware().authchecker,this.gettingfeeds).post(new Middleware().authchecker,this.postingfeed)
-        this.router.route('/feeds/:id').patch(this.patchfeed).delete(this.deletefeed)
+        this.router.route('/feeds/:id').patch(new Middleware().authchecker,this.patchfeed).delete(new Middleware().authchecker,this.deletefeed)
     }
 
     public async gettingfeeds(req:Request,res:Response){
-        const data = await feed.findAll() 
+        const page = parseInt(req.query.page as string) || 1;
+        const pageSize = parseInt(req.query.pageSize as string) || 10;
+        const offset = (page - 1) * pageSize;
+
+        const {count,rows} = await feed.findAndCountAll({
+            limit: pageSize,
+            offset,
+            order: [['uid', 'ASC']]
+        }) 
         console.log(req.customData)
         res.status(200).json({
             message:{
-                message:data,
+                message:rows,
+                totalfeeds:count,
                 payload:req.customData
             }
         })
@@ -39,18 +48,30 @@ export class Feedscontroller{
         })
     }
 
-    public async patchfeed(req:Request,__res:Response) {
+    public async patchfeed(req:Request,res:Response) {
         const id = req.params.id
-        console.log(typeof id)
         const feeds = await feed.findOne({
             where: {
                 uid:id
             },
-            attributes:['body']
+            attributes:['body','userid']
         })
-
-        const {body} = req.body;
-        await feeds?.update({body})
+        const authurid = feeds?.getDataValue('userid');
+        if(authurid === req.customData.uid){
+            const dt = req.body;
+            await feed.update({body:dt.body},{
+                where:{
+                    uid:authurid
+                }
+            })
+            res.status(200).json({
+                message:"success"
+            })
+        }else{
+            res.status(401).json({
+                message:"user is not allowed to edit this post"
+            })
+        }
     }
 
     public async deletefeed(req:Request,res:Response) {
