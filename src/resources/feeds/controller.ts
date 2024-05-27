@@ -39,7 +39,6 @@ export class Feedscontroller{
 
     public async postingfeed(req:Request,res:Response) {
         const dt = req.customData
-        console.log("i am posting feeds")
         req.body.userid = dt.uid;
         const data:Feed = req.body;
         await feed.create({...data});
@@ -50,27 +49,29 @@ export class Feedscontroller{
 
     public async patchfeed(req:Request,res:Response) {
         const id = req.params.id
-        const feeds = await feed.findOne({
+        const feeds:any = await feed.findOne({
             where: {
                 uid:id
             },
-            attributes:['body','userid']
+            attributes:['body','userid','uid']
         })
         const authurid = feeds?.getDataValue('userid');
+        if(authurid === undefined){
+            res.status(401).json({
+                message:'feed does not exist'
+            })
+        }
         if(authurid === req.customData.uid){
             const dt = req.body;
-            await feed.update({body:dt.body},{
-                where:{
-                    uid:authurid
-                }
-            })
+            feeds.body = dt.body;
+            await feeds.save()
             res.status(200).json({
                 message:"success"
             })
         }else{
-            res.status(401).json({
-                message:"user is not allowed to edit this post"
-            })
+            // res.status(401).json({
+            //     message:"user is not allowed to edit this post"
+            // })
         }
     }
 

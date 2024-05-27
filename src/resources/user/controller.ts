@@ -62,13 +62,29 @@ export class User {
     }
     
     public async uploadimage(req:Request,res:Response){
+        let length = 15
+        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        const charactersLength = characters.length;
+        let result = '';
+    
+        // Loop to create a string of the desired length
+        for (let i = 0; i < length; i++) {
+            const randomIndex = Math.floor(Math.random() * charactersLength);
+            result += characters[randomIndex];
+        }
+    
         const data = req.file
-        const datapath = "hello";
+        const datapath = result
         await new Middleware().uploadimg(datapath,data?.buffer)
         const url = process.env.PROJECTURL as string + "/storage/v1/object/public/" + process.env.BUCKETNAME as string + "/" + datapath
-        const usr:any | null = await user.findByPk(req.customData.uid)
+        console.log(req.customData.uid)
+        const usr:any | null = await user.findOne({
+            where:{
+                uid:req.customData.uid
+            },attributes:['uid','profile_image']
+        })
         usr.profile_image = url
-        usr?.save()
+        await usr.save()
         res.status(200).json({
             data:data,
             message:"success"

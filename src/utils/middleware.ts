@@ -29,7 +29,6 @@ export class Middleware{
             contentType:'image/jpeg'
         })
         if (error) {
-            // Handle error
             return error
           
         } else {
