@@ -42,8 +42,12 @@ export const user = db.define(
         githubLink:{
             type:DataTypes.STRING,
             allowNull:true
+        },
+        profile_image:{
+            type:DataTypes.STRING,
+            allowNull:true
         }
 },{underscored:true})
 
 
-// user.sync({force:true})
+user.sync({force:false})
