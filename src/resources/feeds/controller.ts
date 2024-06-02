@@ -2,7 +2,7 @@ import { Request,Response,Router } from "express";
 import { feed } from "./model";
 import { Feed } from "src/interfaces/feedinterface";
 import { Middleware } from "../../utils/middleware";
-
+import {feeds} from "../../utils/verifymodel"
 
 export class Feedscontroller{
     path:string
@@ -41,6 +41,10 @@ export class Feedscontroller{
         const dt = req.customData
         req.body.userid = dt.uid;
         const data:Feed = req.body;
+        const {error} = feeds.validate(data)
+        if(error){
+            res.send(error)
+        }
         await feed.create({...data});
         res.status(200).json({
             message:"success"
