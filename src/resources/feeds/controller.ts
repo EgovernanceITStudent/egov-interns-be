@@ -41,10 +41,10 @@ export class Feedscontroller{
         const dt = req.customData
         req.body.userid = dt.uid;
         const data:Feed = req.body;
-        const {error} = feeds.validate(data)
-        if(error){
-            res.send(error)
-        }
+        // const val = feeds.validate(data)
+        // if(val.error){
+        //     console.log('error')
+        // }
         await feed.create({...data});
         res.status(200).json({
             message:"success"
