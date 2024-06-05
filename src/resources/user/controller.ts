@@ -3,6 +3,8 @@ import { user } from "./model";
 import multer from "multer";
 import { Middleware } from "../../utils/middleware";
 
+
+
 export class User {
     path:string
     router:Router
@@ -17,7 +19,7 @@ export class User {
 
         this.router.route('/profile').get(new Middleware().authchecker,this.profile)
         this.router.route('/user/:id').patch(this.updateuser).delete(this.deleteuser)
-        this.router.route('/uploadimage').patch(new Middleware().authchecker,upload.single('image'),this.uploadimage)
+        this.router.route('/uploadimage').patch(new Middleware().authchecker,new Middleware().checking,upload.single('image'),this.uploadimage)
     }
 
     public async profile(req:Request,res:Response) {
@@ -62,22 +64,11 @@ export class User {
     }
     
     public async uploadimage(req:Request,res:Response){
-        let length = 15
-        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-        const charactersLength = characters.length;
-        let result = '';
-    
-        // Loop to create a string of the desired length
-        for (let i = 0; i < length; i++) {
-            const randomIndex = Math.floor(Math.random() * charactersLength);
-            result += characters[randomIndex];
-        }
-    
         const data = req.file
-        const datapath = result
+        const datapath = req.customData.uid
+        
         await new Middleware().uploadimg(datapath,data?.buffer)
         const url = process.env.PROJECTURL as string + "/storage/v1/object/public/" + process.env.BUCKETNAME as string + "/" + datapath
-        console.log(req.customData.uid)
         const usr:any | null = await user.findOne({
             where:{
                 uid:req.customData.uid

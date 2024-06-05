@@ -4,6 +4,7 @@ import { UserInterface } from "src/interfaces/userInterface";
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import dotenv from 'dotenv'
+import {users} from '../../utils/verifymodel'
 
 
 dotenv.config()
@@ -22,6 +23,11 @@ initRoute(){
 }
     public async signup (req:Request,res:Response){
         let data:UserInterface = req.body;
+        const {error} = users.validate(req.body);
+        if(error){
+            res.send(error)
+        }
+
         if(!data.firstName || !data.lastName || !data.email || !data.username){
             res.status(400).json({
                 status:'invalid input name'

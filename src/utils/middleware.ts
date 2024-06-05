@@ -3,6 +3,7 @@ import  jwt  from "jsonwebtoken";
 import dotenv from 'dotenv'
 import { createClient } from '@supabase/supabase-js'
 
+
 dotenv.config()
 export class Middleware{
     constructor(){}
@@ -23,6 +24,28 @@ export class Middleware{
             })
         }
     }
+    public async checking(req:Request,__res:Response,next:NextFunction){
+        const supabase = createClient(process.env.PROJECTURL as string, process.env.PROJECTAPIKEY as string)
+        const {data} = await supabase.storage.from(process.env.BUCKETNAME as string).list()
+        const imageName:string [] | any = data?.map(file => file.name);
+        console.log(req.customData.uid)
+        console.log(imageName)
+        let pic:boolean = false
+        for(let i =0 ; i< imageName.length; i++){
+            if(imageName[i] === req.customData.uid){
+                pic = true;
+            }
+        }
+
+        if(pic === true){
+            await supabase.storage.from(process.env.BUCKETNAME as string).remove([req.customData.uid])
+            next()
+        }else{
+            next()
+        }
+    }
+
+
     public async uploadimg(file_path:string,file:any){
         const supabase = createClient(process.env.PROJECTURL as string, process.env.PROJECTAPIKEY as string)
         const { data, error } = await supabase.storage.from(process.env.BUCKETNAME as string).upload(file_path,file,{
@@ -30,7 +53,6 @@ export class Middleware{
         })
         if (error) {
             return error
-          
         } else {
             return data
         }
