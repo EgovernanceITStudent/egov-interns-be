@@ -2,7 +2,6 @@ import { Request,Response,Router } from "express";
 import { feed } from "./model";
 import { Feed } from "src/interfaces/feedinterface";
 import { Middleware } from "../../utils/middleware";
-import {feeds} from "../../utils/verifymodel"
 
 export class Feedscontroller{
     path:string
