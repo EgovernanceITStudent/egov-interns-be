@@ -36,7 +36,7 @@ export class Authcontroller {
 
   initRoute() {
     this.router.post("/signup", validation(userSignupSchema), this.signup);
-    // this.router.post("/login", this.login);
+    this.router.post("/login", this.login);
   }
 
   private signup = asyncWrap(
@@ -104,7 +104,7 @@ export class Authcontroller {
         uid: createdUser.id,
       };
 
-      const secretKey = process.env.SECRETKEY as string;
+      const secretKey = process.env.SECRETKEY!;
       const token = jwt.sign(payload, secretKey, {
         expiresIn: "15m",
       });
@@ -117,47 +117,56 @@ export class Authcontroller {
     }
   );
 
-  // public async login(req: Request, res: Response) {
-  //   let data = req.body;
-  //   const User = await user.findOne({
-  //     where: { username: data.username },
-  //     attributes: [
-  //       "password",
-  //       "uid",
-  //       "first_name",
-  //       "last_name",
-  //       "email",
-  //       "username",
-  //       "profile_image",
-  //       "github_link",
-  //       "linkdin_link",
-  //     ],
-  //   });
-  //   if (User === null) {
-  //     res.status(400).json({
-  //       message: "User name does not exist",
-  //     });
-  //   }
-  //   let userpassword = User?.getDataValue("password");
-  //   const uid = User?.getDataValue("uid");
-  //   await bcrypt.compare(data.password, userpassword);
-  //   const payload = {
-  //     uid: uid,
-  //   };
-  //   if (bcrypt) {
-  //     const token = jwt.sign(payload, process.env.SECRETKEY as string, {
-  //       expiresIn: "24",
-  //     });
-  //     res
-  //       .cookie("token", token)
-  //       .status(200)
-  //       .json({
-  //         message: {
-  //           message: "success",
-  //           data: User,
-  //           token: token,
-  //         },
-  //       });
-  //   }
-  // }
+  private login = asyncWrap(async (req: Request, res: Response) => {
+    let loginData = req.body;
+
+    const user = await User.findOne({
+      where: { username: loginData.username },
+    });
+
+    if (!user) {
+      throw new HttpException(401, "Invalid login credentials");
+    }
+
+    let userpassword = user.password;
+    const validPassword = await bcrypt.compare(
+      loginData.password,
+      userpassword
+    );
+
+    if (!validPassword) {
+      throw new HttpException(401, "Invalid login credentials");
+    }
+
+    const uid = user?.id;
+    const payload = {
+      uid: uid,
+    };
+
+    const secretKey = process.env.SECRETKEY!;
+    const token = jwt.sign(payload, secretKey, {
+      expiresIn: "15m",
+    });
+
+    const loggedInUser: CreatedUserAttributes = {
+      id: user.id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      username: user.username,
+      dob: user.dob,
+      schoolName: user.schoolName,
+      schoolDepartment: user.schoolDepartment,
+      linkedInLink: user.linkedInLink,
+      githubLink: user.githubLink,
+      profileImage: user.profileImage,
+      bio: user.bio,
+    };
+
+    res.status(200).json({
+      success: true,
+      user: loggedInUser,
+      token: token,
+    });
+  });
 }
