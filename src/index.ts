@@ -1,8 +1,8 @@
 import dotenv from "dotenv";
 import { App } from "./app";
-import { Authcontroller } from "./resources/auth/controller";
+import { Authcontroller } from "./resources/auth/auth.controler";
 import { Feedscontroller } from "./resources/feeds/controller";
-import { User } from "./resources/user/controller";
+import { User } from "./resources/users/controller";
 
 dotenv.config();
 
