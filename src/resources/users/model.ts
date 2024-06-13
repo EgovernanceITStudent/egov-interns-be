@@ -1,55 +1,118 @@
-import {DataTypes,fn } from "sequelize";
-import { db } from "../../db/index";
+import { Model, DataTypes, Optional } from "sequelize";
+import { db } from "./../../db";
 
+export type UserAttributes = {
+  id: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  username: string;
+  password: string;
+  dob: Date;
+  schoolName: string;
+  schoolDepartment: string;
+  linkedInLink: string;
+  githubLink: string;
+  profileImage: string;
+  bio: string;
+};
 
-export const user = db.define(
-    'User',
-    {
-        uid: {
-        type: DataTypes.UUID, 
-        defaultValue:fn("uuid_generate_v4"),
-        primaryKey: true,
-        allowNull: false
+interface UserCreationAttributes
+  extends Optional<
+    UserAttributes,
+    "id" | "bio" | "profileImage" | "linkedInLink" | "githubLink"
+  > {}
+
+class User
+  extends Model<UserAttributes, UserCreationAttributes>
+  implements UserAttributes
+{
+  public id!: number;
+  public firstName!: string;
+  public lastName!: string;
+  public email!: string;
+  public username!: string;
+  public password!: string;
+  public dob!: Date;
+  public schoolName!: string;
+  public schoolDepartment!: string;
+  public linkedInLink!: string;
+  public githubLink!: string;
+  public profileImage!: string;
+  public bio!: string;
+
+  public readonly createdAt!: Date;
+  public readonly updatedAt!: Date;
+}
+
+User.init(
+  {
+    id: {
+      type: DataTypes.INTEGER.UNSIGNED,
+      autoIncrement: true,
+      primaryKey: true,
+    },
+    firstName: {
+      type: new DataTypes.STRING(128),
+      allowNull: false,
+    },
+    lastName: {
+      type: new DataTypes.STRING(128),
+      allowNull: false,
+    },
+    email: {
+      type: new DataTypes.STRING(128),
+      allowNull: false,
+      validate: {
+        isEmail: true,
       },
-        firstName:{
-            type:DataTypes.STRING,
-            allowNull:false
-        },
-        lastName:{
-            type:DataTypes.STRING,
-            allowNull:false
-        },
-        username:{
-            type:DataTypes.STRING,
-            allowNull:false,
-            unique:true
-        },
-        email:{
-            type:DataTypes.STRING,
-            allowNull:false,
-            unique:true
-        },
-        password:{
-            type:DataTypes.STRING,
-            allowNull:false
-        },
-        dob:{
-            type:DataTypes.DATE,
-            allowNull:false
-        },
-        linkdinLink:{
-            type:DataTypes.STRING,
-            allowNull:true
-        },
-        githubLink:{
-            type:DataTypes.STRING,
-            allowNull:true
-        },
-        profile_image:{
-            type:DataTypes.STRING,
-            allowNull:true
-        }
-},{underscored:true})
+      unique: true,
+    },
+    username: {
+      type: new DataTypes.STRING(128),
+      allowNull: false,
+      unique: true,
+    },
+    password: {
+      type: new DataTypes.STRING(128),
+      allowNull: false,
+    },
+    dob: {
+      type: DataTypes.DATE,
+      allowNull: false,
+    },
+    schoolName: {
+      type: new DataTypes.STRING(128),
+      allowNull: false,
+    },
+    schoolDepartment: {
+      type: new DataTypes.STRING(128),
+      allowNull: false,
+    },
+    linkedInLink: {
+      type: new DataTypes.STRING(128),
+      allowNull: true,
+    },
+    githubLink: {
+      type: new DataTypes.STRING(128),
+      allowNull: true,
+    },
+    profileImage: {
+      type: new DataTypes.STRING(128),
+      allowNull: true,
+    },
+    bio: {
+      type: new DataTypes.STRING(1024),
+      allowNull: true,
+    },
+  },
+  {
+    sequelize: db,
+    tableName: "users",
+    underscored: true,
+  }
+);
 
+export { User };
 
-user.sync({force:false})
+// User.sync({ force: true });
