@@ -1,9 +1,13 @@
 import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
-import HttpException from "src/utils/http.exception";
+import HttpException from "../utils/http.exception";
+
+export interface AuthenticatedRequest extends Request {
+  userId?: string;
+}
 
 export const authCheck = (
-  req: Request & { uid: string },
+  req: AuthenticatedRequest,
   _res: Response,
   next: NextFunction
 ) => {
@@ -14,7 +18,7 @@ export const authCheck = (
       uid: string;
     };
 
-    req.uid = payload.uid;
+    req.userId = payload.uid;
 
     next();
   } catch (error: any) {

@@ -8,6 +8,10 @@ import { userSignupSchema } from "./auth.schema";
 import asyncWrap from "../../utils/asyncWrapper";
 import { Op } from "sequelize";
 import HttpException from "../../utils/http.exception";
+import {
+  AuthenticatedRequest,
+  authCheck,
+} from "../../middlewares/authCheck.middleware";
 
 dotenv.config();
 
@@ -37,6 +41,7 @@ export class Authcontroller {
   initRoute() {
     this.router.post("/signup", validation(userSignupSchema), this.signup);
     this.router.post("/login", this.login);
+    this.router.get("/user", authCheck, this.getAuthUser);
   }
 
   private signup = asyncWrap(
@@ -169,4 +174,33 @@ export class Authcontroller {
       token: token,
     });
   });
+
+  private getAuthUser = asyncWrap(
+    async (req: AuthenticatedRequest, res: Response) => {
+      const userId = req.userId;
+
+      const user = await User.findOne({ where: { id: userId } });
+
+      if (!user) {
+        throw new HttpException(404, "User does not exist");
+      }
+
+      const authUser: CreatedUserAttributes = {
+        id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        username: user.username,
+        dob: user.dob,
+        schoolName: user.schoolName,
+        schoolDepartment: user.schoolDepartment,
+        linkedInLink: user.linkedInLink,
+        githubLink: user.githubLink,
+        profileImage: user.profileImage,
+        bio: user.bio,
+      };
+
+      return res.status(200).json({ success: true, user: authUser });
+    }
+  );
 }
