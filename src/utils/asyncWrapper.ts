@@ -6,9 +6,9 @@ import { NextFunction, Request, RequestHandler, Response } from "express";
  * @returns an async route handler function with error handling
  */
 const asyncWrap = (callback: RequestHandler) => {
-  return (req: Request, res: Response, next: NextFunction) => {
+  return async (req: Request, res: Response, next: NextFunction) => {
     try {
-      callback(req, res, next);
+      await callback(req, res, next);
     } catch (error: any) {
       next(error);
     }
