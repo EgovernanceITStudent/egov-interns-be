@@ -1,5 +1,5 @@
 import { Request, Response, Router } from "express";
-import { User, UserAttributes } from "../users/model";
+import { User, UserAttributes } from "../user/user.model";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
@@ -26,9 +26,9 @@ type SignUpData = {
   schoolDepartment: string;
 };
 
-type CreatedUserAttributes = Omit<UserAttributes, "password">;
+export type CreatedUserAttributes = Omit<UserAttributes, "password">;
 
-export class Authcontroller {
+export class AuthController {
   router: Router;
   path: string;
 
@@ -61,10 +61,10 @@ export class Authcontroller {
         const exitstingFields: string[] = [];
 
         existingUsers.forEach((user) => {
-          if (user.username === userData.username) {
+          if (user.username === userData.username.toLowerCase()) {
             exitstingFields.push("username");
           }
-          if (user.email === userData.email) {
+          if (user.email === userData.email.toLowerCase()) {
             exitstingFields.push("email");
           }
         });

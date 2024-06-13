@@ -1,5 +1,5 @@
-import { Model, DataTypes, Optional } from "sequelize";
-import { db } from "./../../db";
+import { Model, DataTypes, Optional, fn } from "sequelize";
+import { db } from "../../db";
 
 export type UserAttributes = {
   id: number;
@@ -48,9 +48,10 @@ class User
 User.init(
   {
     id: {
-      type: DataTypes.INTEGER.UNSIGNED,
-      autoIncrement: true,
+      type: DataTypes.UUID,
+      defaultValue: fn("uuid_generate_v4"),
       primaryKey: true,
+      allowNull: false,
     },
     firstName: {
       type: new DataTypes.STRING(128),
@@ -67,11 +68,17 @@ User.init(
         isEmail: true,
       },
       unique: true,
+      set(val: string) {
+        this.setDataValue("email", val.toLowerCase());
+      },
     },
     username: {
       type: new DataTypes.STRING(128),
       allowNull: false,
       unique: true,
+      set(val: string) {
+        this.setDataValue("username", val.toLowerCase());
+      },
     },
     password: {
       type: new DataTypes.STRING(128),
