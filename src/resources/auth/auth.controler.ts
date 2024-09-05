@@ -73,7 +73,7 @@ export class AuthController {
 
         throw new HttpException(
           409,
-          `User with the provided ${message} already exists`
+          `User with the provided ${message} already exists`,
         );
       }
 
@@ -111,7 +111,7 @@ export class AuthController {
 
       const secretKey = process.env.SECRETKEY!;
       const token = jwt.sign(payload, secretKey, {
-        expiresIn: "15m",
+        expiresIn: "30m",
       });
 
       return res.status(201).json({
@@ -119,7 +119,7 @@ export class AuthController {
         user: createdUser,
         token: token,
       });
-    }
+    },
   );
 
   private login = asyncWrap(async (req: Request, res: Response) => {
@@ -136,7 +136,7 @@ export class AuthController {
     let userpassword = user.password;
     const validPassword = await bcrypt.compare(
       loginData.password,
-      userpassword
+      userpassword,
     );
 
     if (!validPassword) {
@@ -150,7 +150,7 @@ export class AuthController {
 
     const secretKey = process.env.SECRETKEY!;
     const token = jwt.sign(payload, secretKey, {
-      expiresIn: "15m",
+      expiresIn: "1d",
     });
 
     const loggedInUser: CreatedUserAttributes = {
@@ -177,9 +177,9 @@ export class AuthController {
 
   private getAuthUser = asyncWrap(
     async (req: AuthenticatedRequest, res: Response) => {
-      const userId = req.userId;
+      const id = req.uid;
 
-      const user = await User.findOne({ where: { id: userId } });
+      const user = await User.findOne({ where: { id } });
 
       if (!user) {
         throw new HttpException(404, "User does not exist");
@@ -201,6 +201,6 @@ export class AuthController {
       };
 
       return res.status(200).json({ success: true, user: authUser });
-    }
+    },
   );
 }

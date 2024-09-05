@@ -4,5 +4,8 @@ dotenv.config();
 
 const connectionString = process.env.DB_CONNECTION_STRING as string;
 
-export const db = new Sequelize(connectionString, { dialect: "postgres" });
+export const db = new Sequelize(connectionString, {
+  dialect: "postgres",
+  logging: false,
+});
 // db.authenticate()

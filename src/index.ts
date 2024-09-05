@@ -10,7 +10,7 @@ const PORT = Number(process.env.PORT || 5000);
 
 const app = new App(
   [new AuthController(), new Feedscontroller(), new UserController()],
-  PORT
+  PORT,
 );
 
 app.listen();

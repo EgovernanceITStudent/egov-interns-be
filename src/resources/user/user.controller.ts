@@ -1,16 +1,17 @@
 import { Request, Response, Router } from "express";
 import { User } from "./user.model";
 import multer from "multer";
-import { Middleware } from "../../utils/middleware";
-import {
-  AuthenticatedRequest,
-  authCheck,
-} from "../../middlewares/authCheck.middleware";
 import asyncWrap from "../../utils/asyncWrapper";
 import HttpException from "../../utils/http.exception";
 import { CreatedUserAttributes } from "../auth/auth.controler";
 import validation from "../../middlewares/validation.middleware";
 import { userUpdateSchema } from "./user.schema";
+import { createClient } from "@supabase/supabase-js";
+import {
+  authCheck,
+  AuthenticatedRequest,
+} from "../../middlewares/authCheck.middleware";
+import path from "path";
 
 type UserUpdateData = {
   firstName: string;
@@ -22,6 +23,11 @@ type UserUpdateData = {
   schoolName: string;
   schoolDepartment: string;
 };
+
+const supabase = createClient(
+  process.env.SUPABASE_URL as string,
+  process.env.SUPABASE_ANON_KEY as string,
+);
 
 export class UserController {
   path: string;
@@ -42,15 +48,14 @@ export class UserController {
       "/users/:id",
       authCheck,
       validation(userUpdateSchema),
-      this.updateUser
+      this.updateUser,
     );
     this.router.delete("/users/:id", authCheck, this.deleteUser);
     this.router.post(
       "/uploadimage",
-      new Middleware().authchecker,
-      new Middleware().checking,
-      upload.single("image"),
-      this.uploadimage
+      authCheck,
+      upload.single("profileImage"),
+      this.uploadimage,
     );
   }
 
@@ -108,31 +113,74 @@ export class UserController {
         success: true,
         user: updatedUser,
       });
-    }
+    },
   );
 
-  public async uploadimage(req: Request, res: Response) {
-    const data = req.file;
-    const datapath = req.customData.uid;
+  uploadimage = asyncWrap(async (req: AuthenticatedRequest, res: Response) => {
+    const file = req.file;
+    if (!file) {
+      throw new HttpException(
+        400,
+        `Kindly attach a image file to this request`,
+      );
+    }
 
-    await new Middleware().uploadimg(datapath, data?.buffer);
-    const url =
-      (((process.env.PROJECTURL as string) +
-        "/storage/v1/object/public/" +
-        process.env.BUCKETNAME) as string) +
-      "/" +
-      datapath;
-    const usr: any | null = await User.findOne({
-      where: {
-        id: req.customData.uid,
-      },
-      attributes: ["uid", "profile_image"],
-    });
-    usr.profile_image = url;
-    await usr.save();
+    const userId = req.uid;
+    const user = await User.findByPk(userId);
+    if (!user) {
+      throw new HttpException(404, `User with id ${req.uid} does not exist`);
+    }
+
+    const bucketName = process.env.PROFILE_IMAGES_BUCKET as string;
+
+    const filePath = `${userId}-v-${new Date().getTime()}${path.extname(
+      file.originalname,
+    )}`;
+
+    console.log(filePath);
+
+    /**
+     * Check for existing profile image and delete if exists
+     */
+    const profileImagesBucket = (await supabase.storage.from(bucketName).list())
+      .data;
+
+    const exisitingImage = profileImagesBucket?.find((image) =>
+      image.name.includes(user.id.toString()),
+    );
+
+    if (exisitingImage) {
+      await supabase.storage.from(bucketName).remove([exisitingImage.name]);
+    }
+
+    /**
+     * Upload profile image
+     */
+    const { data, error } = await supabase.storage
+      .from(bucketName)
+      .upload(filePath, file?.buffer!, {
+        contentType: "image/*",
+        upsert: true,
+      });
+
+    if (error) {
+      throw new HttpException(500, error.message);
+    }
+
+    /**
+     * Save profile image link to user profile
+     */
+    const imageUrl = `${process.env
+      .SUPABASE_URL!}/storage/v1/object/public/${bucketName}/${data?.path}`;
+
+    user.profileImage = imageUrl;
+
+    await user.save();
+
     res.status(200).json({
-      data: data,
-      message: "success",
+      success: "true",
+      message: "Image upload successful",
+      imageUrl,
     });
-  }
+  });
 }

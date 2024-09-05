@@ -105,7 +105,7 @@ User.init(
       allowNull: true,
     },
     profileImage: {
-      type: new DataTypes.STRING(128),
+      type: new DataTypes.STRING(1024),
       allowNull: true,
     },
     bio: {
@@ -117,7 +117,7 @@ User.init(
     sequelize: db,
     tableName: "users",
     underscored: true,
-  }
+  },
 );
 
 export { User };
