@@ -1,15 +1,16 @@
-import dotenv from 'dotenv'
-import { App } from './app'
-import  {Pool} from 'pg'
-import {Sequelize} from 'sequelize'
-dotenv.config()
+import dotenv from "dotenv";
+import { App } from "./app";
+import { AuthController } from "./resources/auth/auth.controler";
+import { Feedscontroller } from "./resources/feeds/controller";
+import { UserController } from "./resources/user/user.controller";
 
-const connectionString = 'postgres://postgres.skjxbwzncomrweitcmfh:pHW9qZsUDZxf4xOU@aws-0-us-west-1.pooler.supabase.com:5432/postgres';
-//connecting to database
-const sequelize = new Sequelize(connectionString)
+dotenv.config();
 
-module.exports = {
-    // querying:pool.query()
-}
-const app = new App([],3000);
-app.listen()
+const PORT = Number(process.env.PORT || 5000);
+
+const app = new App(
+  [new AuthController(), new Feedscontroller(), new UserController()],
+  PORT,
+);
+
+app.listen();
