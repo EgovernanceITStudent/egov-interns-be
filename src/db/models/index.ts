@@ -63,7 +63,8 @@ export const db: DB = Object.values(models)
     return model;
   })
   .reduce((prev, curr) => {
-    prev[curr.tableName] = curr;
+    const tableName = curr.tableName as keyof typeof models;
+    prev[tableName] = curr;
     return prev;
   }, {} as DB);
 
