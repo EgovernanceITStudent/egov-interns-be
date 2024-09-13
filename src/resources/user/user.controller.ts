@@ -1,5 +1,4 @@
 import { Request, Response, Router } from "express";
-import { User } from "./user.model";
 import multer from "multer";
 import asyncWrap from "../../utils/asyncWrapper";
 import HttpException from "../../utils/http.exception";
@@ -12,6 +11,8 @@ import {
   AuthenticatedRequest,
 } from "../../middlewares/authCheck.middleware";
 import path from "path";
+import type User from "../../db/models/user";
+import { db } from "../../db/models";
 
 type UserUpdateData = {
   firstName: string;
@@ -61,7 +62,7 @@ export class UserController {
 
   public async deleteUser(req: AuthenticatedRequest, res: Response) {
     const userId = req.params.id;
-    await User.destroy({
+    await db.user.destroy({
       where: {
         id: userId,
       },
@@ -77,7 +78,7 @@ export class UserController {
       const userId = req.params.id;
       const updateData = req.body;
 
-      const user = await User.findByPk(userId);
+      const user: User = await db.user.findByPk(userId);
 
       if (!user) {
         throw new HttpException(404, "User does not exist");
@@ -126,7 +127,7 @@ export class UserController {
     }
 
     const userId = req.uid;
-    const user = await User.findByPk(userId);
+    const user = await db.user.findByPk(userId);
     if (!user) {
       throw new HttpException(404, `User with id ${req.uid} does not exist`);
     }

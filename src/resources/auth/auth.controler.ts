@@ -1,8 +1,6 @@
 import { Request, Response, Router } from "express";
-import { User, UserAttributes } from "../user/user.model";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import dotenv from "dotenv";
 import validation from "../../middlewares/validation.middleware";
 import { userSignupSchema } from "./auth.schema";
 import asyncWrap from "../../utils/asyncWrapper";
@@ -12,8 +10,10 @@ import {
   AuthenticatedRequest,
   authCheck,
 } from "../../middlewares/authCheck.middleware";
-
-dotenv.config();
+import type User from "../../db/models/user";
+import type { UserAttributes } from "../../db/models/user";
+import { db } from "../../db/models";
+import "dotenv/config";
 
 type SignUpData = {
   firstName: string;
@@ -48,7 +48,7 @@ export class AuthController {
     async (req: Request<any, any, SignUpData>, res: Response) => {
       let userData = req.body;
 
-      const existingUsers = await User.findAll({
+      const existingUsers: User[] = await db.user.findAll({
         where: {
           [Op.or]: {
             username: userData.username,
@@ -79,7 +79,7 @@ export class AuthController {
 
       const hashedPassword = bcrypt.hashSync(userData.password, 10);
 
-      let newUser = await User.create({
+      let newUser = await db.user.create({
         firstName: userData.firstName,
         lastName: userData.lastName,
         email: userData.email,
@@ -109,7 +109,7 @@ export class AuthController {
         uid: createdUser.id,
       };
 
-      const secretKey = process.env.SECRETKEY!;
+      const secretKey = process.env.SECRETKEY as string;
       const token = jwt.sign(payload, secretKey, {
         expiresIn: "30m",
       });
@@ -125,7 +125,7 @@ export class AuthController {
   private login = asyncWrap(async (req: Request, res: Response) => {
     let loginData = req.body;
 
-    const user = await User.findOne({
+    const user: User = await db.user.findOne({
       where: { username: loginData.username },
     });
 
@@ -148,7 +148,7 @@ export class AuthController {
       uid: uid,
     };
 
-    const secretKey = process.env.SECRETKEY!;
+    const secretKey = process.env.SECRETKEY as string;
     const token = jwt.sign(payload, secretKey, {
       expiresIn: "1d",
     });
@@ -179,7 +179,7 @@ export class AuthController {
     async (req: AuthenticatedRequest, res: Response) => {
       const id = req.uid;
 
-      const user = await User.findOne({ where: { id } });
+      const user = await db.user.findOne({ where: { id } });
 
       if (!user) {
         throw new HttpException(404, "User does not exist");
