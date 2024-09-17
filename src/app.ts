@@ -6,7 +6,7 @@ import pageNotFoundMiddleware from "./middlewares/404.middleware";
 import errorMiddleware from "./middlewares/error.middleware";
 
 export class App {
-  private express: Application;
+  public express: Application;
   private controllers: Controller[];
   private port: number;
 
