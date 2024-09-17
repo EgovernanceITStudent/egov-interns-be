@@ -1,4 +1,5 @@
 import "dotenv/config";
+import pg from "pg";
 
 ("use strict");
 var config = {
@@ -9,6 +10,7 @@ var config = {
     host: process.env.DEV_DB_HOST,
     port: Number(process.env.DEV_DB_PORT),
     dialect: process.env.DEV_DB_DIALECT,
+    dialectModule: pg,
   },
   test: {
     username: process.env.TEST_DB_USERNAME,
@@ -17,6 +19,7 @@ var config = {
     host: process.env.TEST_DB_HOST,
     port: Number(process.env.TEST_DB_PORT),
     dialect: process.env.TEST_DB_DIALECT,
+    dialectModule: pg,
   },
   production: {
     username: process.env.DB_USERNAME,
@@ -25,6 +28,7 @@ var config = {
     host: process.env.DB_HOST,
     port: Number(process.env.DB_PORT),
     dialect: process.env.DB_DIALECT,
+    dialectModule: pg,
   },
 };
 
