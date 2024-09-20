@@ -13,4 +13,6 @@ const app = new App(
   PORT,
 );
 
+app.listen();
+
 export default app.express;

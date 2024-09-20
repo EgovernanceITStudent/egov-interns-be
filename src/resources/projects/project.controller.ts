@@ -5,7 +5,6 @@ import validation from "../../middlewares/validation.middleware";
 import { projectCreationSchema, projectUpdateSchema } from "./project.schema";
 import {
   authCheck,
-  // authCheck,
   AuthenticatedRequest,
 } from "../../middlewares/authCheck.middleware";
 import { db } from "../../db/models";
@@ -40,64 +39,71 @@ export class ProjectController {
 
   initializeRoutes() {
     this.router.post(
-      "/projects",
+      "/users/:userId/projects",
       authCheck,
       validation(projectCreationSchema),
       this.createProject,
     );
-    this.router.get("/projects", authCheck, this.getProjects);
-    this.router.get("/projects/:id", authCheck, this.getProjectById);
+    this.router.get("/users/:userId/projects", authCheck, this.getProjects);
+    this.router.get(
+      "/users/:userId/projects/:projectId",
+      authCheck,
+      this.getProjectById,
+    );
     this.router.patch(
-      "/projects/:id",
+      "/users/:userId/projects/:projectId",
       authCheck,
       validation(projectUpdateSchema),
       this.updateProject,
     );
-    this.router.delete("/projects/:id", authCheck, this.deleteProject);
+    this.router.delete(
+      "/users/:userId/projects/:projectId",
+      authCheck,
+      this.deleteProject,
+    );
   }
 
-  private createProject = asyncWrap(
-    async (req: AuthenticatedRequest, res: Response) => {
-      const projectData: ProjectCreationData = req.body;
-      const userId = req.uid;
+  private createProject = asyncWrap(async (req: Request, res: Response) => {
+    const projectData: ProjectCreationData = req.body;
+    const userId = req.params.userId;
 
-      const createdProject: Project = await db.project.create({
-        name: projectData.name,
-        description: projectData.description,
-        technologies: projectData.technologies,
-        link: projectData.link,
-        githubRepo: projectData.githubRepo,
-        userId: userId as string,
-      });
+    const createdProject: Project = await db.project.create({
+      name: projectData.name,
+      description: projectData.description,
+      technologies: projectData.technologies,
+      link: projectData.link,
+      githubRepo: projectData.githubRepo,
+      userId,
+    });
 
-      return res.status(201).json({
-        success: true,
-        data: createdProject,
-      });
-    },
-  );
+    return res.status(201).json({
+      success: true,
+      data: createdProject,
+    });
+  });
 
-  private getProjects = asyncWrap(
-    async (req: AuthenticatedRequest, res: Response) => {
-      const id = req.uid;
+  private getProjects = asyncWrap(async (req: Request, res: Response) => {
+    const userId = req.params.userId;
 
-      const project: Project[] = await db.project.findAll({
-        where: {
-          userId: id,
-        },
-        order: [["createdAt", "DESC"]],
-      });
+    const project: Project[] = await db.project.findAll({
+      where: {
+        userId,
+      },
+      order: [["createdAt", "DESC"]],
+    });
 
-      return res
-        .status(200)
-        .json({ success: true, data: project, totalProjects: project.length });
-    },
-  );
+    return res
+      .status(200)
+      .json({ success: true, data: project, totalProjects: project.length });
+  });
 
   private getProjectById = asyncWrap(async (req: Request, res: Response) => {
-    const id = req.params.id;
+    const id = req.params.projectId;
+    const userId = req.params.userId;
 
-    const project: Project = await db.project.findOne({ where: { id } });
+    const project: Project = await db.project.findOne({
+      where: { id, userId },
+    });
 
     if (!project) {
       throw new HttpException(404, "Project does not exist");
@@ -108,10 +114,11 @@ export class ProjectController {
 
   public deleteProject = asyncWrap(
     async (req: AuthenticatedRequest, res: Response) => {
-      const projectId = req.params.id;
+      const id = req.params.projectId;
+      const userId = req.params.userId;
 
       const project: Project = await db.project.findOne({
-        where: { id: projectId },
+        where: { id, userId },
       });
 
       if (!project) {
@@ -129,10 +136,13 @@ export class ProjectController {
 
   public updateProject = asyncWrap(
     async (req: Request<any, any, ProjectUpdateData>, res: Response) => {
-      const userId = req.params.id;
+      const id = req.params.projectId;
+      const userId = req.params.userId;
       const updateData = req.body;
 
-      const project: Project = await db.project.findByPk(userId);
+      const project: Project = await db.project.findOne({
+        where: { id, userId },
+      });
 
       if (!project) {
         throw new HttpException(404, "Project does not exist");

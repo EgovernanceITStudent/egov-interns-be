@@ -58,6 +58,8 @@ export class UserController {
       upload.single("profileImage"),
       this.uploadimage,
     );
+
+    this.router.get("/users/:username", authCheck, this.getUserByUsername);
   }
 
   public async deleteUser(req: AuthenticatedRequest, res: Response) {
@@ -184,4 +186,36 @@ export class UserController {
       imageUrl,
     });
   });
+
+  getUserByUsername = asyncWrap(
+    async (req: Request<any, any, UserUpdateData>, res: Response) => {
+      const username = req.params.username;
+
+      const existingUser: User = await db.user.findOne({ where: { username } });
+
+      if (!existingUser) {
+        throw new HttpException(404, "User does not exist");
+      }
+
+      const user: CreatedUserAttributes = {
+        id: existingUser.id,
+        firstName: existingUser.firstName,
+        lastName: existingUser.lastName,
+        email: existingUser.email,
+        username: existingUser.username,
+        dob: existingUser.dob,
+        schoolName: existingUser.schoolName,
+        schoolDepartment: existingUser.schoolDepartment,
+        linkedInLink: existingUser.linkedInLink,
+        githubLink: existingUser.githubLink,
+        profileImage: existingUser.profileImage,
+        bio: existingUser.bio,
+      };
+
+      return res.status(200).json({
+        success: true,
+        user: user,
+      });
+    },
+  );
 }
