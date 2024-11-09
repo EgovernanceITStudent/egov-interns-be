@@ -1,7 +1,6 @@
 import { Request, Response, Router } from "express";
 import jwt from "jsonwebtoken";
 import validation from "../../middlewares/validation.middleware";
-import { userSignupSchema } from "./auth.schema";
 import asyncWrap from "../../utils/asyncWrapper";
 import { Op } from "sequelize";
 import HttpException from "../../utils/http.exception";
@@ -13,6 +12,7 @@ import type User from "../../db/models/user";
 import type { UserAttributes } from "../../db/models/user";
 import { db } from "../../db/models";
 import "dotenv/config";
+import { userSignupSchema } from "../user/user.schema";
 
 type SignUpData = {
   firstName: string;
