@@ -34,31 +34,26 @@ export class ProjectController {
     this.path = "";
     this.router = Router();
 
+    this.router.use(authCheck);
+
     this.initializeRoutes();
   }
 
   initializeRoutes() {
     this.router.post(
       "/users/:userId/projects",
-      authCheck,
       validation(projectCreationSchema),
       this.createProject,
     );
-    this.router.get("/users/:userId/projects", authCheck, this.getProjects);
-    this.router.get(
-      "/users/:userId/projects/:projectId",
-      authCheck,
-      this.getProjectById,
-    );
+    this.router.get("/users/:userId/projects", this.getProjects);
+    this.router.get("/users/:userId/projects/:projectId", this.getProjectById);
     this.router.patch(
       "/users/:userId/projects/:projectId",
-      authCheck,
       validation(projectUpdateSchema),
       this.updateProject,
     );
     this.router.delete(
       "/users/:userId/projects/:projectId",
-      authCheck,
       this.deleteProject,
     );
   }

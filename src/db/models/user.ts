@@ -134,8 +134,6 @@ class User
   }
 
   verifyPassword(plainTextPassword: string) {
-    console.log({ plainTextPassword, hash: this.password });
-
     return bcrypt.compareSync(plainTextPassword, this.password);
   }
 }
