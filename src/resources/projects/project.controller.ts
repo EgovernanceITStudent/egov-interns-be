@@ -27,11 +27,9 @@ type ProjectUpdateData = {
 };
 
 export class ProjectController {
-  path: string;
   router: Router;
 
   constructor() {
-    this.path = "";
     this.router = Router();
 
     this.router.use(authCheck);

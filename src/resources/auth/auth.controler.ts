@@ -29,11 +29,9 @@ export type CreatedUserAttributes = Omit<UserAttributes, "password">;
 
 export class AuthController {
   router: Router;
-  path: string;
 
   constructor() {
     this.router = Router();
-    this.path = "";
     this.initRoute();
   }
 

@@ -31,11 +31,9 @@ const supabase = createClient(
 );
 
 export class UserController {
-  path: string;
   router: Router;
 
   constructor() {
-    this.path = "";
     this.router = Router();
 
     this.initializeRoutes();

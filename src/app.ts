@@ -34,7 +34,7 @@ export class App {
     });
 
     this.controllers.forEach((controller) => {
-      this.express.use(controller.path, controller.router);
+      this.express.use(controller.router);
     });
   }
 
