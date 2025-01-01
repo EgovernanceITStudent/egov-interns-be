@@ -8,7 +8,7 @@ import type User from "../../db/models/user";
 import type { UserAttributes } from "../../db/models/user";
 import { db } from "../../db/models";
 import "dotenv/config";
-import { userSignupSchema } from "../user/user.schema";
+import { userSignupSchema } from "../../schemas/user.schema";
 
 type SignUpData = {
   firstName: string;
@@ -28,10 +28,10 @@ export class AuthController {
 
   constructor() {
     this.router = Router();
-    this.initRoute();
+    this.initRoutes();
   }
 
-  initRoute() {
+  initRoutes() {
     this.router.post("/auth/signup", validation(userSignupSchema), this.signup);
     this.router.post("/auth/login", this.login);
   }

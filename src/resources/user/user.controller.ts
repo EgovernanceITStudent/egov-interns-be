@@ -4,7 +4,7 @@ import asyncWrap from "../../utils/asyncWrapper";
 import HttpException from "../../utils/http.exception";
 import { CreatedUserAttributes } from "../auth/auth.controler";
 import validation from "../../middlewares/validation.middleware";
-import { userUpdateSchema } from "./user.schema";
+import { userUpdateSchema } from "../../schemas/user.schema";
 import { createClient } from "@supabase/supabase-js";
 import {
   authCheck,
