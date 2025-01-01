@@ -4,10 +4,6 @@ import validation from "../../middlewares/validation.middleware";
 import asyncWrap from "../../utils/asyncWrapper";
 import { Op } from "sequelize";
 import HttpException from "../../utils/http.exception";
-import {
-  AuthenticatedRequest,
-  authCheck,
-} from "../../middlewares/authCheck.middleware";
 import type User from "../../db/models/user";
 import type { UserAttributes } from "../../db/models/user";
 import { db } from "../../db/models";
@@ -36,9 +32,8 @@ export class AuthController {
   }
 
   initRoute() {
-    this.router.post("/signup", validation(userSignupSchema), this.signup);
-    this.router.post("/login", this.login);
-    this.router.get("/user", authCheck, this.getAuthUser);
+    this.router.post("/auth/signup", validation(userSignupSchema), this.signup);
+    this.router.post("/auth/login", this.login);
   }
 
   private signup = asyncWrap(
@@ -139,21 +134,4 @@ export class AuthController {
       token,
     });
   });
-
-  private getAuthUser = asyncWrap(
-    async (req: AuthenticatedRequest, res: Response) => {
-      const id = req.uid;
-
-      const user = await db.user.findOne({
-        where: { id },
-        attributes: { exclude: ["password"] },
-      });
-
-      if (!user) {
-        throw new HttpException(404, "User does not exist");
-      }
-
-      return res.status(200).json({ success: true, user });
-    },
-  );
 }

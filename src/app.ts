@@ -33,8 +33,12 @@ export class App {
       });
     });
 
+    this.express.get("/api", (_req: Request, res: Response) => {
+      res.redirect("/");
+    });
+
     this.controllers.forEach((controller) => {
-      this.express.use(controller.router);
+      this.express.use("/api", controller.router);
     });
   }
 
