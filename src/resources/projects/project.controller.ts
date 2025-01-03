@@ -2,7 +2,10 @@ import { Request, Response, Router } from "express";
 import asyncWrap from "../../utils/asyncWrapper";
 import HttpException from "../../utils/http.exception";
 import validation from "../../middlewares/validation.middleware";
-import { projectCreationSchema, projectUpdateSchema } from "./project.schema";
+import {
+  projectCreationSchema,
+  projectUpdateSchema,
+} from "../../schemas/project.schema";
 import {
   authCheck,
   AuthenticatedRequest,
