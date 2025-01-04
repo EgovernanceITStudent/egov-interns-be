@@ -73,7 +73,7 @@ export class AuthController {
         firstName: userData.firstName,
         lastName: userData.lastName,
         email: userData.email,
-        username: userData.username,
+        username: userData.username.toLocaleLowerCase().trim(),
         dob: userData.dob,
         schoolName: userData.schoolName,
         schoolDepartment: userData.schoolDepartment,
