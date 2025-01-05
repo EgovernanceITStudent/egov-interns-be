@@ -122,7 +122,7 @@ export class ProfileController {
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
-        username: user.username,
+        username: user.username.toLocaleLowerCase().trim(),
         dob: user.dob,
         schoolName: user.schoolName,
         schoolDepartment: user.schoolDepartment,
